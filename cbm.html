@@ -10,334 +10,208 @@
 </head>
 <body class="dash-body">
 
-<!-- TOP BAR (reuse from main) -->
+<!-- TOP BAR -->
 <div class="dash-topbar">
   <div class="dtb-brand">
-    <div class="dtb-logo-box">
-      <img src="impexio_logo.png" alt="IMPEXIO" class="dtb-logo"/>
-    </div>
+    <div class="dtb-logo-box"><img src="impexio_logo.png" alt="IMPEXIO" class="dtb-logo"/></div>
     <div class="dtb-name">IMPEXIO</div>
   </div>
-
   <div class="dtb-meta" id="dtbMeta"></div>
-
   <div class="dtb-right">
-    <div class="dtb-user" id="dtbUser">
+    <div class="dtb-user">
       <div class="dtb-avatar" id="dtbAv">A</div>
-      <div>
-        <div class="dtb-uname" id="dtbUname">Admin</div>
-        <div class="dtb-role" id="dtbRole">Administrator</div>
-      </div>
+      <div><div class="dtb-uname" id="dtbUname">Admin</div><div class="dtb-role" id="dtbRole">Administrator</div></div>
     </div>
     <button class="btn-logout" onclick="doLogout()">⏻ Logout</button>
   </div>
 </div>
 
-<!-- PAGE CONTENT -->
-<div class="cbm-page">
-
-  <!-- Page Header -->
-  <div class="cbm-page-header">
-    <div class="cbm-page-header-left">
-      <a href="main.html" class="cbm-back-btn">← Back to Menu</a>
-      <div>
-        <div class="cbm-page-title">📐 CBM Calculation</div>
-        <div class="cbm-page-sub">Cubic Meter &amp; CFT Volume Calculator with Printout</div>
+<!-- ═══ VIEW 1: RECORDS ═══ -->
+<div id="viewList" class="cbm-view">
+  <div class="cbm-page">
+    <div class="cbm-page-header">
+      <div class="cbm-page-header-left">
+        <a href="main.html" class="cbm-back-btn">← Back</a>
+        <div>
+          <div class="cbm-page-title">📐 CBM Calculation</div>
+          <div class="cbm-page-sub">Cubic Meter &amp; CFT Volume Calculator with Printout</div>
+        </div>
+      </div>
+      <button class="cbm-new-btn" onclick="showForm()">＋ New CBM Entry</button>
+    </div>
+    <div class="cbm-records-card">
+      <div class="cbm-records-header">
+        <div class="cbm-records-title">CBM Records</div>
+        <div class="cbm-search-wrap">
+          <span>🔍</span>
+          <input type="text" id="searchInput" class="cbm-search" placeholder="Search CBM No, Company..." oninput="filterRecords()"/>
+        </div>
+      </div>
+      <div class="cbm-table-wrap">
+        <table class="cbm-table">
+          <thead><tr><th>CBM No.</th><th>Date</th><th>Company</th><th>Branch</th><th>Total CBM</th><th>Total CFT</th><th>Containers</th><th>Actions</th></tr></thead>
+          <tbody id="recordsTbody">
+            <tr class="cbm-empty-row"><td colspan="8"><div class="cbm-empty">
+              <div class="cbm-empty-icon">📐</div>
+              <div class="cbm-empty-text">No CBM records yet</div>
+              <div class="cbm-empty-sub">Click "New CBM Entry" to get started</div>
+            </div></td></tr>
+          </tbody>
+        </table>
       </div>
     </div>
-    <button class="cbm-new-btn" onclick="openModal()">＋ New CBM Entry</button>
+  </div>
+</div>
+
+<!-- ═══ VIEW 2: STEP FORM ═══ -->
+<div id="viewForm" class="cbm-form-view" style="display:none;">
+
+  <!-- Top bar with step indicator -->
+  <div class="cbm-ftopbar">
+    <button class="cbm-back-btn" onclick="showList()">← Records</button>
+    <div class="cbm-steps-row">
+      <div class="cbm-si active" id="sd1" onclick="goStep(1)"><div class="cbm-sn">1</div><span>Document</span></div>
+      <div class="cbm-sline"></div>
+      <div class="cbm-si" id="sd2" onclick="goStep(2)"><div class="cbm-sn">2</div><span>Container</span></div>
+      <div class="cbm-sline"></div>
+      <div class="cbm-si" id="sd3" onclick="goStep(3)"><div class="cbm-sn">3</div><span>CBM Calc</span></div>
+      <div class="cbm-sline"></div>
+      <div class="cbm-si" id="sd4" onclick="goStep(4)"><div class="cbm-sn">4</div><span>CFT Calc</span></div>
+      <div class="cbm-sline"></div>
+      <div class="cbm-si" id="sd5" onclick="goStep(5)"><div class="cbm-sn">5</div><span>Summary</span></div>
+    </div>
+    <div class="cbm-ftopbar-btns">
+      <button class="cbm-btn-save" onclick="saveRecord()">💾 Save</button>
+      <button class="cbm-btn-print" onclick="printRecord()">🖨 Print</button>
+    </div>
   </div>
 
-  <!-- Records Table -->
-  <div class="cbm-records-card">
-    <div class="cbm-records-header">
-      <div class="cbm-records-title">CBM Records</div>
-      <div class="cbm-search-wrap">
-        <span>🔍</span>
-        <input type="text" id="searchInput" class="cbm-search" placeholder="Search by CBM No, Company..." oninput="filterRecords()"/>
+  <!-- Panel area -->
+  <div class="cbm-panels">
+
+    <!-- Step 1 -->
+    <div class="cbm-panel active" id="panel1">
+      <div class="cbm-phd"><span class="cbm-picon">📋</span><div><div class="cbm-ptitle">Document Information</div><div class="cbm-psub">Company name, reference numbers and dates</div></div></div>
+      <div class="cbm-g4">
+        <div class="cbm-fg"><label class="cbm-lbl">Company Name <span class="req">*</span></label><input type="text" class="cbm-inp" id="f_company" placeholder="Enter company name"/></div>
+        <div class="cbm-fg"><label class="cbm-lbl">Branch</label><input type="text" class="cbm-inp" id="f_branch" placeholder="Branch / Office"/></div>
+        <div class="cbm-fg"><label class="cbm-lbl">Location</label><input type="text" class="cbm-inp" id="f_location" placeholder="City / Port"/></div>
+        <div class="cbm-fg"><label class="cbm-lbl">Day Book</label><input type="text" class="cbm-inp" id="f_daybook" placeholder="Day book ref."/></div>
+        <div class="cbm-fg"><label class="cbm-lbl">CBM No. <span class="req">*</span></label><input type="text" class="cbm-inp" id="f_cbmno"/></div>
+        <div class="cbm-fg"><label class="cbm-lbl">CBM Date <span class="req">*</span></label><input type="date" class="cbm-inp" id="f_cbmdate"/></div>
+        <div class="cbm-fg"><label class="cbm-lbl">Listing No.</label><input type="text" class="cbm-inp" id="f_listno" placeholder="Listing ref."/></div>
+        <div class="cbm-fg"><label class="cbm-lbl">Exporter / Buyer</label><input type="text" class="cbm-inp" id="f_exporter" placeholder="Exporter or buyer name"/></div>
+        <div class="cbm-fg"><label class="cbm-lbl">Prepared By</label><input type="text" class="cbm-inp" id="f_preparedby" placeholder="Preparer name"/></div>
+        <div class="cbm-fg"><label class="cbm-lbl">Authorised Signatory</label><input type="text" class="cbm-inp" id="f_signatory" placeholder="Signatory name"/></div>
+        <div class="cbm-fg cbm-sp2"><label class="cbm-lbl">Remarks</label><input type="text" class="cbm-inp" id="f_remarks" placeholder="Additional notes..."/></div>
       </div>
     </div>
 
-    <div class="cbm-table-wrap">
-      <table class="cbm-table" id="recordsTable">
-        <thead>
-          <tr>
-            <th>CBM No.</th>
-            <th>Date</th>
-            <th>Company</th>
-            <th>Branch</th>
-            <th>Total CBM</th>
-            <th>Total CFT</th>
-            <th>Containers</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody id="recordsTbody">
-          <tr class="cbm-empty-row" id="emptyRow">
-            <td colspan="8">
-              <div class="cbm-empty">
-                <div class="cbm-empty-icon">📐</div>
-                <div class="cbm-empty-text">No CBM records yet</div>
-                <div class="cbm-empty-sub">Click "New CBM Entry" to create your first calculation</div>
-              </div>
-            </td>
-          </tr>
+    <!-- Step 2 -->
+    <div class="cbm-panel" id="panel2">
+      <div class="cbm-phd"><span class="cbm-picon">🚢</span><div><div class="cbm-ptitle">Container Detail Summary</div><div class="cbm-psub">CBM, weight and quantity per container type</div></div></div>
+      <table class="cbm-tbl">
+        <thead><tr><th>Container Type</th><th>CBM (m³)</th><th>MT (Metric Ton)</th><th>Product Quantity</th></tr></thead>
+        <tbody>
+          <tr><td class="cbm-tc"><span class="cbm-bd b20">20'</span> 20' Container</td>
+            <td><input type="number" class="cbm-ci" id="c20_cbm" placeholder="0.000" step="0.001" oninput="calcContainerTotal()"/></td>
+            <td><input type="number" class="cbm-ci" id="c20_mt" placeholder="0.000" step="0.001" oninput="calcContainerTotal()"/></td>
+            <td><input type="number" class="cbm-ci" id="c20_qty" placeholder="0" oninput="calcContainerTotal()"/></td></tr>
+          <tr><td class="cbm-tc"><span class="cbm-bd b40gp">40'GP</span> 40' GP Container</td>
+            <td><input type="number" class="cbm-ci" id="c40gp_cbm" placeholder="0.000" step="0.001" oninput="calcContainerTotal()"/></td>
+            <td><input type="number" class="cbm-ci" id="c40gp_mt" placeholder="0.000" step="0.001" oninput="calcContainerTotal()"/></td>
+            <td><input type="number" class="cbm-ci" id="c40gp_qty" placeholder="0" oninput="calcContainerTotal()"/></td></tr>
+          <tr><td class="cbm-tc"><span class="cbm-bd b40hq">40'HQ</span> 40' HQ Container</td>
+            <td><input type="number" class="cbm-ci" id="c40hq_cbm" placeholder="0.000" step="0.001" oninput="calcContainerTotal()"/></td>
+            <td><input type="number" class="cbm-ci" id="c40hq_mt" placeholder="0.000" step="0.001" oninput="calcContainerTotal()"/></td>
+            <td><input type="number" class="cbm-ci" id="c40hq_qty" placeholder="0" oninput="calcContainerTotal()"/></td></tr>
+          <tr><td class="cbm-tc"><span class="cbm-bd blcl">LCL</span> LCL Shipment</td>
+            <td><input type="number" class="cbm-ci" id="lcl_cbm" placeholder="0.000" step="0.001" oninput="calcContainerTotal()"/></td>
+            <td><input type="number" class="cbm-ci" id="lcl_mt" placeholder="0.000" step="0.001" oninput="calcContainerTotal()"/></td>
+            <td><input type="number" class="cbm-ci" id="lcl_qty" placeholder="0" oninput="calcContainerTotal()"/></td></tr>
         </tbody>
+        <tfoot><tr class="cbm-tr"><td>TOTAL</td><td id="tot_cbm">0.000</td><td id="tot_mt">0.000</td><td id="tot_qty">0</td></tr></tfoot>
+      </table>
+      <div class="cbm-livestrip">
+        <div class="cbm-ls"><div class="cbm-ls-l">Total CBM</div><div class="cbm-ls-v" id="ls_cbm">0.000</div></div>
+        <div class="cbm-ls"><div class="cbm-ls-l">Total MT</div><div class="cbm-ls-v" id="ls_mt">0.000</div></div>
+        <div class="cbm-ls"><div class="cbm-ls-l">Total Qty</div><div class="cbm-ls-v" id="ls_qty">0</div></div>
+      </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="cbm-panel" id="panel3">
+      <div class="cbm-phd">
+        <span class="cbm-picon">📏</span>
+        <div><div class="cbm-ptitle">CBM Calculation &nbsp;<span class="cbm-ftag">L × W × H ÷ 1,000,000</span></div><div class="cbm-psub">Dimensions in Centimetres &nbsp;|&nbsp; 1 Inch = 2.54 Cm</div></div>
+        <button class="cbm-addrow" onclick="addCbmRow()">＋ Add Row</button>
+      </div>
+      <table class="cbm-tbl cbm-ctbl">
+        <thead><tr><th>Description / Product</th><th>L (cm)</th><th>W (cm)</th><th>H (cm)</th><th>Boxes</th><th>CBM Result</th><th></th></tr></thead>
+        <tbody id="cbmRows"></tbody>
+        <tfoot><tr class="cbm-tr"><td colspan="4">Total CBM</td><td id="cbm_total_boxes">0</td><td id="cbm_total_result">0.000000</td><td></td></tr></tfoot>
       </table>
     </div>
+
+    <!-- Step 4 -->
+    <div class="cbm-panel" id="panel4">
+      <div class="cbm-phd">
+        <span class="cbm-picon">📦</span>
+        <div><div class="cbm-ptitle">CFT Calculation &nbsp;<span class="cbm-ftag">L × W × H ÷ 1,728</span></div><div class="cbm-psub">Dimensions in Inches &nbsp;|&nbsp; 1 Foot = 12 Inches</div></div>
+        <button class="cbm-addrow" onclick="addCftRow()">＋ Add Row</button>
+      </div>
+      <table class="cbm-tbl cbm-ctbl">
+        <thead><tr><th>Description / Product</th><th>L (inch)</th><th>W (inch)</th><th>H (inch)</th><th>Boxes</th><th>CFT Result</th><th></th></tr></thead>
+        <tbody id="cftRows"></tbody>
+        <tfoot><tr class="cbm-tr"><td colspan="4">Total CFT</td><td id="cft_total_boxes">0</td><td id="cft_total_result">0.0000</td><td></td></tr></tfoot>
+      </table>
+    </div>
+
+    <!-- Step 5 -->
+    <div class="cbm-panel" id="panel5">
+      <div class="cbm-phd"><span class="cbm-picon">📊</span><div><div class="cbm-ptitle">Calculation Summary</div><div class="cbm-psub">Review all computed values before saving or printing</div></div></div>
+      <div class="cbm-sumlayout">
+        <div class="cbm-sumcards">
+          <div class="cbm-sumc navy"><div class="cbm-sumc-l">Total CBM</div><div class="cbm-sumc-v" id="sum_cbm">0.000000</div><div class="cbm-sumc-u">Cubic Metres (m³)</div></div>
+          <div class="cbm-sumc gold"><div class="cbm-sumc-l">Total CFT</div><div class="cbm-sumc-v" id="sum_cft">0.0000</div><div class="cbm-sumc-u">Cubic Feet (ft³)</div></div>
+        </div>
+        <div class="cbm-sumrows">
+          <div class="cbm-sr"><span>CBM → CFT</span><strong id="sum_cbm2cft">0.0000 CFT</strong></div>
+          <div class="cbm-sr"><span>CFT → CBM</span><strong id="sum_cft2cbm">0.000000 CBM</strong></div>
+          <div class="cbm-sdiv"></div>
+          <div class="cbm-sr"><span>Total Boxes (CBM)</span><strong id="sum_boxes_cbm">0</strong></div>
+          <div class="cbm-sr"><span>Total Boxes (CFT)</span><strong id="sum_boxes_cft">0</strong></div>
+          <div class="cbm-sdiv"></div>
+          <div class="cbm-sr"><span>Container CBM</span><strong id="sum_cont_cbm">0.000</strong></div>
+          <div class="cbm-sr"><span>Container MT</span><strong id="sum_cont_mt">0.000</strong></div>
+          <div class="cbm-sr"><span>Container Qty</span><strong id="sum_cont_qty">0</strong></div>
+        </div>
+      </div>
+      <div class="cbm-docref" id="docRef"></div>
+    </div>
+
+  </div><!-- /panels -->
+
+  <!-- Bottom nav -->
+  <div class="cbm-navbar">
+    <div class="cbm-nb-left">
+      <button class="cbm-gh" onclick="showList()">✕ Cancel</button>
+      <button class="cbm-gh red" onclick="clearForm()">🗑 Clear</button>
+    </div>
+    <div class="cbm-nb-center">
+      <button class="cbm-nprev" id="btnPrev" onclick="prevStep()">← Prev</button>
+      <div class="cbm-ndots" id="navDots"></div>
+      <button class="cbm-nnext" id="btnNext" onclick="nextStep()">Next →</button>
+    </div>
+    <div class="cbm-nb-right">
+      <button class="cbm-btn-save" onclick="saveRecord()">💾 Save Record</button>
+      <button class="cbm-btn-print" onclick="printRecord()">🖨 Print</button>
+    </div>
   </div>
-</div>
 
-<!-- ══════════════════════════════════════════
-     MODAL — CBM Entry Form
-══════════════════════════════════════════ -->
-<div class="cbm-modal-overlay" id="modalOverlay" onclick="closeModalOutside(event)">
-  <div class="cbm-modal" id="cbmModal">
+</div><!-- /viewForm -->
 
-    <!-- Modal Header -->
-    <div class="cbm-modal-header">
-      <div>
-        <div class="cbm-modal-title">📐 CBM Calculation Entry</div>
-        <div class="cbm-modal-sub">Fill in the details below — calculations update live</div>
-      </div>
-      <button class="cbm-modal-close" onclick="closeModal()">✕</button>
-    </div>
-
-    <!-- Modal Body -->
-    <div class="cbm-modal-body">
-
-      <!-- Section A: Header Info -->
-      <div class="cbm-section">
-        <div class="cbm-section-title">
-          <span class="cbm-section-num">A</span> Document Information
-        </div>
-        <div class="cbm-form-grid">
-          <div class="cbm-fgroup">
-            <label class="cbm-label">Company Name <span class="req">*</span></label>
-            <input type="text" class="cbm-input" id="f_company" placeholder="Enter company name"/>
-          </div>
-          <div class="cbm-fgroup">
-            <label class="cbm-label">Branch</label>
-            <input type="text" class="cbm-input" id="f_branch" placeholder="Branch / Office"/>
-          </div>
-          <div class="cbm-fgroup">
-            <label class="cbm-label">Location</label>
-            <input type="text" class="cbm-input" id="f_location" placeholder="City / Port"/>
-          </div>
-          <div class="cbm-fgroup">
-            <label class="cbm-label">Day Book</label>
-            <input type="text" class="cbm-input" id="f_daybook" placeholder="Day book ref."/>
-          </div>
-          <div class="cbm-fgroup">
-            <label class="cbm-label">CBM No. <span class="req">*</span></label>
-            <input type="text" class="cbm-input" id="f_cbmno" placeholder="Auto / Manual"/>
-          </div>
-          <div class="cbm-fgroup">
-            <label class="cbm-label">CBM Date <span class="req">*</span></label>
-            <input type="date" class="cbm-input" id="f_cbmdate"/>
-          </div>
-          <div class="cbm-fgroup">
-            <label class="cbm-label">Listing No.</label>
-            <input type="text" class="cbm-input" id="f_listno" placeholder="Listing ref."/>
-          </div>
-          <div class="cbm-fgroup">
-            <label class="cbm-label">Exporter / Buyer</label>
-            <input type="text" class="cbm-input" id="f_exporter" placeholder="Exporter or buyer name"/>
-          </div>
-        </div>
-      </div>
-
-      <!-- Section B: Container Detail -->
-      <div class="cbm-section">
-        <div class="cbm-section-title">
-          <span class="cbm-section-num">B</span> Container Detail Summary
-        </div>
-        <div class="cbm-table-wrap">
-          <table class="cbm-inner-table">
-            <thead>
-              <tr>
-                <th>Container Type</th>
-                <th>CBM</th>
-                <th>MT (Metric Ton)</th>
-                <th>Product Qty</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td class="cbm-type-cell">20' Container</td>
-                <td><input type="number" class="cbm-cell-input" id="c20_cbm" placeholder="0.000" step="0.001" oninput="calcContainerTotal()"/></td>
-                <td><input type="number" class="cbm-cell-input" id="c20_mt" placeholder="0.000" step="0.001" oninput="calcContainerTotal()"/></td>
-                <td><input type="number" class="cbm-cell-input" id="c20_qty" placeholder="0" oninput="calcContainerTotal()"/></td>
-              </tr>
-              <tr>
-                <td class="cbm-type-cell">40' GP Container</td>
-                <td><input type="number" class="cbm-cell-input" id="c40gp_cbm" placeholder="0.000" step="0.001" oninput="calcContainerTotal()"/></td>
-                <td><input type="number" class="cbm-cell-input" id="c40gp_mt" placeholder="0.000" step="0.001" oninput="calcContainerTotal()"/></td>
-                <td><input type="number" class="cbm-cell-input" id="c40gp_qty" placeholder="0" oninput="calcContainerTotal()"/></td>
-              </tr>
-              <tr>
-                <td class="cbm-type-cell">40' HQ Container</td>
-                <td><input type="number" class="cbm-cell-input" id="c40hq_cbm" placeholder="0.000" step="0.001" oninput="calcContainerTotal()"/></td>
-                <td><input type="number" class="cbm-cell-input" id="c40hq_mt" placeholder="0.000" step="0.001" oninput="calcContainerTotal()"/></td>
-                <td><input type="number" class="cbm-cell-input" id="c40hq_qty" placeholder="0" oninput="calcContainerTotal()"/></td>
-              </tr>
-              <tr>
-                <td class="cbm-type-cell">LCL Shipment</td>
-                <td><input type="number" class="cbm-cell-input" id="lcl_cbm" placeholder="0.000" step="0.001" oninput="calcContainerTotal()"/></td>
-                <td><input type="number" class="cbm-cell-input" id="lcl_mt" placeholder="0.000" step="0.001" oninput="calcContainerTotal()"/></td>
-                <td><input type="number" class="cbm-cell-input" id="lcl_qty" placeholder="0" oninput="calcContainerTotal()"/></td>
-              </tr>
-              <tr class="cbm-total-row">
-                <td>TOTAL</td>
-                <td id="tot_cbm">0.000</td>
-                <td id="tot_mt">0.000</td>
-                <td id="tot_qty">0</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- Section C: CBM & CFT Calculator -->
-      <div class="cbm-section">
-        <div class="cbm-section-title">
-          <span class="cbm-section-num">C</span> CBM &amp; CFT Calculation Detail
-          <span class="cbm-formula-note">1 Inch = 2.54 Cm &nbsp;|&nbsp; CBM = L×W×H ÷ 1,000,000 &nbsp;|&nbsp; CFT = L×W×H ÷ 1,728</span>
-        </div>
-
-        <!-- CBM Calculator -->
-        <div class="cbm-calc-label">CBM Calculation (Centimetres)</div>
-        <div class="cbm-table-wrap">
-          <table class="cbm-inner-table">
-            <thead>
-              <tr>
-                <th>Description</th>
-                <th>L (cm)</th>
-                <th>W (cm)</th>
-                <th>H (cm)</th>
-                <th>Boxes / Qty</th>
-                <th>CBM Result</th>
-              </tr>
-            </thead>
-            <tbody id="cbmRows">
-              <!-- rows added by JS -->
-            </tbody>
-            <tfoot>
-              <tr class="cbm-total-row">
-                <td colspan="4">Total CBM</td>
-                <td id="cbm_total_boxes">0</td>
-                <td id="cbm_total_result">0.000 CBM</td>
-              </tr>
-            </tfoot>
-          </table>
-        </div>
-        <button class="cbm-add-row-btn" onclick="addCbmRow()">＋ Add Row</button>
-
-        <!-- CFT Calculator -->
-        <div class="cbm-calc-label" style="margin-top:1.5rem;">CFT Calculation (Inches)</div>
-        <div class="cbm-table-wrap">
-          <table class="cbm-inner-table">
-            <thead>
-              <tr>
-                <th>Description</th>
-                <th>L (inch)</th>
-                <th>W (inch)</th>
-                <th>H (inch)</th>
-                <th>Boxes / Qty</th>
-                <th>CFT Result</th>
-              </tr>
-            </thead>
-            <tbody id="cftRows">
-              <!-- rows added by JS -->
-            </tbody>
-            <tfoot>
-              <tr class="cbm-total-row">
-                <td colspan="4">Total CFT</td>
-                <td id="cft_total_boxes">0</td>
-                <td id="cft_total_result">0.000 CFT</td>
-              </tr>
-            </tfoot>
-          </table>
-        </div>
-        <button class="cbm-add-row-btn" onclick="addCftRow()">＋ Add Row</button>
-      </div>
-
-      <!-- Section D: Calculation Summary -->
-      <div class="cbm-section">
-        <div class="cbm-section-title">
-          <span class="cbm-section-num">D</span> Calculation Summary
-        </div>
-        <div class="cbm-summary-grid">
-          <div class="cbm-summary-item">
-            <div class="cbm-summary-label">Total CBM</div>
-            <div class="cbm-summary-val" id="sum_cbm">0.000 CBM</div>
-          </div>
-          <div class="cbm-summary-item">
-            <div class="cbm-summary-label">Total CFT</div>
-            <div class="cbm-summary-val" id="sum_cft">0.000 CFT</div>
-          </div>
-          <div class="cbm-summary-item">
-            <div class="cbm-summary-label">CBM → CFT Conversion</div>
-            <div class="cbm-summary-val" id="sum_cbm2cft">0.000 CFT</div>
-          </div>
-          <div class="cbm-summary-item">
-            <div class="cbm-summary-label">CFT → CBM Conversion</div>
-            <div class="cbm-summary-val" id="sum_cft2cbm">0.000 CBM</div>
-          </div>
-          <div class="cbm-summary-item">
-            <div class="cbm-summary-label">Total Boxes (CBM)</div>
-            <div class="cbm-summary-val" id="sum_boxes_cbm">0</div>
-          </div>
-          <div class="cbm-summary-item">
-            <div class="cbm-summary-label">Total Boxes (CFT)</div>
-            <div class="cbm-summary-val" id="sum_boxes_cft">0</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Section E: Remarks & Signatories -->
-      <div class="cbm-section">
-        <div class="cbm-section-title">
-          <span class="cbm-section-num">E</span> Remarks &amp; Authorization
-        </div>
-        <div class="cbm-form-grid">
-          <div class="cbm-fgroup" style="grid-column: 1 / -1;">
-            <label class="cbm-label">Remarks</label>
-            <textarea class="cbm-input cbm-textarea" id="f_remarks" placeholder="Any additional remarks or notes..."></textarea>
-          </div>
-          <div class="cbm-fgroup">
-            <label class="cbm-label">Prepared By</label>
-            <input type="text" class="cbm-input" id="f_preparedby" placeholder="Name of preparer"/>
-          </div>
-          <div class="cbm-fgroup">
-            <label class="cbm-label">Authorised Signatory</label>
-            <input type="text" class="cbm-input" id="f_signatory" placeholder="Authorised signatory name"/>
-          </div>
-        </div>
-      </div>
-
-    </div><!-- /modal-body -->
-
-    <!-- Modal Footer -->
-    <div class="cbm-modal-footer">
-      <button class="cbm-btn-cancel" onclick="closeModal()">✕ Close</button>
-      <div class="cbm-modal-footer-right">
-        <button class="cbm-btn-clear" onclick="clearForm()">🗑 Clear</button>
-        <button class="cbm-btn-save" onclick="saveRecord()">💾 Save Record</button>
-        <button class="cbm-btn-print" onclick="printRecord()">🖨 Print</button>
-      </div>
-    </div>
-
-  </div><!-- /cbm-modal -->
-</div><!-- /overlay -->
-
-<!-- ══════════════════════════════════════════
-     PRINT TEMPLATE (hidden, shown on print)
-══════════════════════════════════════════ -->
-<div id="printArea" style="display:none;">
-  <!-- filled dynamically by JS -->
-</div>
-
+<div id="printArea" style="display:none;"></div>
 <script src="app.js"></script>
 <script src="cbm.js"></script>
 </body>
