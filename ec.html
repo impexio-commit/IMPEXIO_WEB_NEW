@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>IMPEXIO — Export Costing</title>
+  <link rel="stylesheet" href="styles.css"/>
+  <link rel="stylesheet" href="ec.css"/>
+  <link rel="icon" href="impexio_logo.png" type="image/png"/>
+</head>
+<body class="dash-body ec-body">
+
+<!-- TOP BAR -->
+<div class="dash-topbar">
+  <div class="dtb-brand">
+    <div class="dtb-logo-box"><img src="impexio_logo.png" alt="IMPEXIO" class="dtb-logo"/></div>
+    <div class="dtb-name">IMPEXIO</div>
+  </div>
+  <div class="dtb-meta" id="dtbMeta"></div>
+  <div class="dtb-right">
+    <div class="dtb-user">
+      <div class="dtb-avatar" id="dtbAv">A</div>
+      <div>
+        <div class="dtb-uname" id="dtbUname">Admin</div>
+        <div class="dtb-role"  id="dtbRole">Administrator</div>
+      </div>
+    </div>
+    <button class="btn-logout" onclick="doLogout()">⏻ Logout</button>
+  </div>
+</div>
+
+<!-- PAGE SHELL -->
+<div class="ec-shell">
+
+  <!-- ═══ LEFT: Records ═══ -->
+  <div class="ec-left">
+    <div class="el-header">
+      <div class="el-title">🧮 EC Records</div>
+      <button class="el-new-btn" onclick="newEntry()">＋ New</button>
+    </div>
+    <div class="el-search-wrap">
+      <span>🔍</span>
+      <input type="text" id="searchInput" class="el-search" placeholder="Search..." oninput="filterRecords()"/>
+    </div>
+    <div class="el-list" id="recordsList">
+      <div class="el-empty">
+        <div style="font-size:1.6rem;opacity:0.35;">🧮</div>
+        <div class="el-empty-txt">No records yet</div>
+        <div class="el-empty-sub">Click + New to begin</div>
+      </div>
+    </div>
+    <a href="main.html" class="el-back">← Back to Menu</a>
+  </div>
+
+  <!-- ═══ RIGHT: Step Wizard ═══ -->
+  <div class="ec-right">
+
+    <!-- Progress Bar -->
+    <div class="ec-progress-bar">
+      <div class="epb-left">
+        <div class="epb-title" id="formTitle">New Export Costing</div>
+        <div class="epb-sub"   id="formSub">Step 1 of 3</div>
+      </div>
+      <div class="epb-steps">
+        <div class="epb-step active" id="pstep_1" onclick="goToStep(1)">
+          <div class="epb-step-num">1</div>
+          <div class="epb-step-lbl">Document Info</div>
+        </div>
+        <div class="epb-connector" id="conn_1"></div>
+        <div class="epb-step" id="pstep_2" onclick="goToStep(2)">
+          <div class="epb-step-num">2</div>
+          <div class="epb-step-lbl">Cost Sheet</div>
+        </div>
+        <div class="epb-connector" id="conn_2"></div>
+        <div class="epb-step" id="pstep_3" onclick="goToStep(3)">
+          <div class="epb-step-num">3</div>
+          <div class="epb-step-lbl">Summary &amp; Auth</div>
+        </div>
+      </div>
+      <div class="epb-actions">
+        <button class="ea ea-clear" onclick="clearForm()">🗑 Clear</button>
+        <button class="ea ea-save"  onclick="saveRecord()">💾 Save</button>
+        <button class="ea ea-print" onclick="printRecord()">🖨 Print</button>
+      </div>
+    </div>
+
+    <!-- ══ STEP 1: Document Info ══ -->
+    <div class="ec-step" id="step_1">
+      <div class="ec-step-inner">
+        <div class="ec-step-header">
+          <div class="ec-step-icon">📋</div>
+          <div>
+            <div class="ec-step-title">Document Information</div>
+            <div class="ec-step-desc">Enter basic details for this Export Costing sheet</div>
+          </div>
+        </div>
+
+        <div class="ec-card">
+          <div class="ec-card-hd"><span class="ec-badge">A</span> Export Costing Details</div>
+          <div class="ec-grid-3x2">
+            <div class="ef">
+              <label class="el2">Company <span class="req">*</span></label>
+              <input type="text" class="ei" id="f_company" placeholder="Enter company name"/>
+            </div>
+            <div class="ef">
+              <label class="el2">Costing Ref. No. <span class="req">*</span></label>
+              <input type="text" class="ei" id="f_refno" placeholder="EC/2026/0001"/>
+            </div>
+            <div class="ef">
+              <label class="el2">Product</label>
+              <input type="text" class="ei" id="f_product" placeholder="Product name / description"/>
+            </div>
+            <div class="ef">
+              <label class="el2">Rates As On <span class="req">*</span></label>
+              <input type="date" class="ei" id="f_ratesdate"/>
+            </div>
+            <div class="ef">
+              <label class="el2">Currency 1$ = INR</label>
+              <input type="number" class="ei" id="f_usdrate" placeholder="e.g. 84.50" step="0.01"/>
+            </div>
+            <div class="ef">
+              <label class="el2">Ship Rate $</label>
+              <input type="number" class="ei" id="f_shiprate" placeholder="e.g. 1200.00" step="0.01"/>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="ec-step-footer">
+        <div></div>
+        <button class="enav enav-next" onclick="nextStep(1)">Next: Cost Sheet →</button>
+      </div>
+    </div>
+
+    <!-- ══ STEP 2: Cost Sheet ══ -->
+    <div class="ec-step hidden" id="step_2">
+      <div class="ec-step-inner ec-step-inner-tbl">
+
+        <div class="ec-info-strip">
+          <span id="s2_company"></span>
+          <span class="ec-strip-sep">|</span>
+          <span id="s2_product"></span>
+          <span class="ec-strip-sep">|</span>
+          <span id="s2_ref"></span>
+          <span class="ec-strip-sep">|</span>
+          <span>1$ = ₹<span id="s2_rate"></span></span>
+        </div>
+
+        <div class="ec-card ec-card-full">
+          <div class="ec-card-hd">
+            <span class="ec-badge">B</span> Cost Sheet For Internal Use
+            <span class="ec-card-note">FCL = Full Container Load &nbsp;|&nbsp; LCL = Less than Container Load</span>
+          </div>
+          <div class="ec-tbl-wrap">
+            <table class="ec-tbl">
+              <thead>
+                <tr class="ec-thead-top">
+                  <th rowspan="3" class="ec-th-par">PARTICULARS</th>
+                  <th colspan="2" class="ec-th-grp">20' CONTAINER</th>
+                  <th colspan="2" class="ec-th-grp">40' GP CONTAINER</th>
+                  <th colspan="2" class="ec-th-grp">40' HQ CONTAINER</th>
+                  <th colspan="2" class="ec-th-grp">LCL SHIPMENT</th>
+                </tr>
+                <tr class="ec-thead-mid">
+                  <th class="ec-th-sub">FCL COSTING</th>
+                  <th class="ec-th-sub">LCL COSTING</th>
+                  <th class="ec-th-sub">FCL COSTING</th>
+                  <th class="ec-th-sub">LCL COSTING</th>
+                  <th class="ec-th-sub">FCL COSTING</th>
+                  <th class="ec-th-sub">LCL COSTING</th>
+                  <th class="ec-th-sub">FCL COSTING</th>
+                  <th class="ec-th-sub">LCL COSTING</th>
+                </tr>
+                <tr class="ec-thead-bot">
+                  <th class="ec-th-unit">RS</th><th class="ec-th-unit">RS</th>
+                  <th class="ec-th-unit">RS</th><th class="ec-th-unit">RS</th>
+                  <th class="ec-th-unit">RS</th><th class="ec-th-unit">RS</th>
+                  <th class="ec-th-unit">RS</th><th class="ec-th-unit">RS</th>
+                </tr>
+              </thead>
+              <tbody id="costBody">
+                <!-- built by JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+      <div class="ec-step-footer">
+        <button class="enav enav-back" onclick="prevStep(2)">← Back</button>
+        <button class="enav enav-next" onclick="nextStep(2)">Next: Summary →</button>
+      </div>
+    </div>
+
+    <!-- ══ STEP 3: Summary & Auth ══ -->
+    <div class="ec-step hidden" id="step_3">
+      <div class="ec-step-inner">
+
+        <div class="ec-info-strip">
+          <span id="s3_company"></span>
+          <span class="ec-strip-sep">|</span>
+          <span id="s3_product"></span>
+          <span class="ec-strip-sep">|</span>
+          <span id="s3_ref"></span>
+        </div>
+
+        <!-- FOB / CIF Summary -->
+        <div class="ec-card">
+          <div class="ec-card-hd"><span class="ec-badge">C</span> FOB &amp; CIF Value Summary (20' FCL)</div>
+          <div class="ec-sum-grid">
+            <div class="ec-sum-item ec-sum-highlight">
+              <div class="ec-sum-lbl">FOB Value (INR)</div>
+              <div class="ec-sum-val" id="sum_fob_inr">₹ 0</div>
+            </div>
+            <div class="ec-sum-item ec-sum-highlight">
+              <div class="ec-sum-lbl">FOB Value ($)</div>
+              <div class="ec-sum-val" id="sum_fob_usd">$ 0</div>
+            </div>
+            <div class="ec-sum-item ec-sum-highlight">
+              <div class="ec-sum-lbl">FOB Value Per 1 MT</div>
+              <div class="ec-sum-val" id="sum_fob_mt">$ 0</div>
+            </div>
+            <div class="ec-sum-item ec-sum-gold">
+              <div class="ec-sum-lbl">CIF Value (INR)</div>
+              <div class="ec-sum-val" id="sum_cif_inr">₹ 0</div>
+            </div>
+            <div class="ec-sum-item ec-sum-gold">
+              <div class="ec-sum-lbl">CIF Value ($)</div>
+              <div class="ec-sum-val" id="sum_cif_usd">$ 0</div>
+            </div>
+            <div class="ec-sum-item ec-sum-gold">
+              <div class="ec-sum-lbl">CIF Value Per 1 MT</div>
+              <div class="ec-sum-val" id="sum_cif_mt">$ 0</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Remarks & Auth -->
+        <div class="ec-card">
+          <div class="ec-card-hd"><span class="ec-badge">D</span> Remarks &amp; Authorization</div>
+          <div class="ec-rem-grid">
+            <div class="ef" style="grid-column:1/-1;">
+              <label class="el2">Remarks</label>
+              <textarea class="ei ei-ta" id="f_remarks" placeholder="Additional notes or remarks..."></textarea>
+            </div>
+            <div class="ef">
+              <label class="el2">Prepared By</label>
+              <input type="text" class="ei" id="f_preparedby" placeholder="Full name"/>
+            </div>
+            <div class="ef">
+              <label class="el2">Authorised Signatory</label>
+              <input type="text" class="ei" id="f_signatory" placeholder="Signatory name"/>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <div class="ec-step-footer">
+        <button class="enav enav-back" onclick="prevStep(3)">← Back</button>
+        <div style="display:flex;gap:0.5rem;">
+          <button class="enav enav-save"  onclick="saveRecord()">💾 Save Record</button>
+          <button class="enav enav-print" onclick="printRecord()">🖨 Print</button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /ec-right -->
+</div><!-- /ec-shell -->
+
+<div id="printArea" style="display:none;"></div>
+<script src="app.js"></script>
+<script src="ec.js"></script>
+</body>
+</html>
