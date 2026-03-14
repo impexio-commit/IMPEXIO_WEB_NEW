@@ -27,8 +27,8 @@
      GENERAL THC LCL              → input
      B/L CHARGES                  → input
      CERTIFICATE OF ORIGIN        → input
-     ENS (USD 25)                 → auto = 25 × USD rate
-     VGM (USD 20)                 → auto = 20 × USD rate
+     ENS (USD 25)                 → input  (USD 25 is just the label — enter INR amount manually)
+     VGM (USD 20)                 → input  (USD 20 is just the label — enter INR amount manually)
      CUSTOM CLEARANCE CHARGE-CFS  → input
      18% SERVICE TAX              → auto = 18% of (GENERAL THC + B/L + CERT + CCC-CFS)
    TOTAL (CUSTOMS)                → auto = sum of all custom items
@@ -73,8 +73,8 @@ const EC2_ROWS = [
   { key:'gen_thc',        label:'GENERAL THC LCL',           type:'input' },
   { key:'bl_charges',     label:'B/L CHARGES',               type:'input' },
   { key:'cert_origin',    label:'CERTIFICATE OF ORIGIN',     type:'input' },
-  { key:'ens',            label:'ENS (USD 25)',               type:'calc_ens' },
-  { key:'vgm',            label:'VGM (USD 20)',               type:'calc_vgm' },
+  { key:'ens',            label:'ENS (USD 25)',               type:'input' },
+  { key:'vgm',            label:'VGM (USD 20)',               type:'input' },
   { key:'ccc_cfs',        label:'CUSTOM CLEARANCE CHARGE - CFS', type:'input' },
   { key:'cust_svc_tax',   label:'18% SERVICE TAX',           type:'calc_cust_tax' },
   { key:'cust_total',     label:'TOTAL',                     type:'calc_cust_total' },
@@ -94,7 +94,7 @@ const EC2_ROWS = [
 ];
 
 const INPUT_TYPES = ['input'];
-const CALC_TYPES  = ['calc_cbm','calc_local_tax','calc_local_total','calc_ens','calc_vgm','calc_cust_tax','calc_cust_total','calc_fob_inr','calc_fob_kg','calc_fob_usd','calc_cif_inr','calc_cif_usd'];
+const CALC_TYPES  = ['calc_cbm','calc_local_tax','calc_local_total','calc_cust_tax','calc_cust_total','calc_fob_inr','calc_fob_kg','calc_fob_usd','calc_cif_inr','calc_cif_usd'];
 
 let ec2Records  = JSON.parse(localStorage.getItem('ec2_records') || '[]');
 let editingId   = null;
@@ -227,17 +227,15 @@ function recalc() {
     set('local_svc_tax',  localTax);
     set('local_total',    localTot);
 
-    // Custom Clearance
+    // Custom Clearance — ENS & VGM are manual inputs (USD amounts are just labels)
     const genThc    = g('gen_thc');
     const bl        = g('bl_charges');
     const cert      = g('cert_origin');
-    const ens       = 25 * usdRate;
-    const vgm       = 20 * usdRate;
+    const ens       = g('ens');
+    const vgm       = g('vgm');
     const cccCfs    = g('ccc_cfs');
     const custTax   = (genThc + bl + cert + cccCfs) * 0.18;
     const custTot   = genThc + bl + cert + ens + vgm + cccCfs + custTax;
-    set('ens',          ens);
-    set('vgm',          vgm);
     set('cust_svc_tax', custTax);
     set('cust_total',   custTot);
 
