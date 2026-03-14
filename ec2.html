@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>IMPEXIO — Export Costing 2</title>
+  <link rel="stylesheet" href="styles.css"/>
+  <link rel="stylesheet" href="ec2.css"/>
+  <link rel="icon" href="impexio_logo.png" type="image/png"/>
+</head>
+<body class="dash-body ec2-body">
+
+<!-- TOP BAR -->
+<div class="dash-topbar">
+  <div class="dtb-brand">
+    <div class="dtb-logo-box"><img src="impexio_logo.png" alt="IMPEXIO" class="dtb-logo"/></div>
+    <div class="dtb-name">IMPEXIO</div>
+  </div>
+  <div class="dtb-meta" id="dtbMeta"></div>
+  <div class="dtb-right">
+    <div class="dtb-user">
+      <div class="dtb-avatar" id="dtbAv">A</div>
+      <div>
+        <div class="dtb-uname" id="dtbUname">Admin</div>
+        <div class="dtb-role"  id="dtbRole">Administrator</div>
+      </div>
+    </div>
+    <button class="btn-logout" onclick="doLogout()">⏻ Logout</button>
+  </div>
+</div>
+
+<!-- PAGE SHELL -->
+<div class="ec2-shell">
+
+  <!-- ═══ LEFT: Records ═══ -->
+  <div class="ec2-left">
+    <div class="e2l-header">
+      <div class="e2l-title">🧾 EC2 Records</div>
+      <button class="e2l-new-btn" onclick="newEntry()">＋ New</button>
+    </div>
+    <div class="e2l-search-wrap">
+      <span>🔍</span>
+      <input type="text" id="searchInput" class="e2l-search" placeholder="Search..." oninput="filterRecords()"/>
+    </div>
+    <div class="e2l-list" id="recordsList">
+      <div class="e2l-empty">
+        <div style="font-size:1.6rem;opacity:0.35;">🧾</div>
+        <div class="e2l-empty-txt">No records yet</div>
+        <div class="e2l-empty-sub">Click + New to begin</div>
+      </div>
+    </div>
+    <a href="main.html" class="e2l-back">← Back to Menu</a>
+  </div>
+
+  <!-- ═══ RIGHT: Step Wizard ═══ -->
+  <div class="ec2-right">
+
+    <!-- Progress Bar -->
+    <div class="ec2-progress-bar">
+      <div class="e2pb-left">
+        <div class="e2pb-title" id="formTitle">New Export Costing 2</div>
+        <div class="e2pb-sub"   id="formSub">Step 1 of 3</div>
+      </div>
+      <div class="e2pb-steps">
+        <div class="e2pb-step active" id="pstep_1" onclick="goToStep(1)">
+          <div class="e2pb-step-num">1</div>
+          <div class="e2pb-step-lbl">Document Info</div>
+        </div>
+        <div class="e2pb-connector" id="conn_1"></div>
+        <div class="e2pb-step" id="pstep_2" onclick="goToStep(2)">
+          <div class="e2pb-step-num">2</div>
+          <div class="e2pb-step-lbl">Costing Sheet</div>
+        </div>
+        <div class="e2pb-connector" id="conn_2"></div>
+        <div class="e2pb-step" id="pstep_3" onclick="goToStep(3)">
+          <div class="e2pb-step-num">3</div>
+          <div class="e2pb-step-lbl">Summary &amp; Auth</div>
+        </div>
+      </div>
+      <div class="e2pb-actions">
+        <button class="e2a e2a-clear" onclick="clearForm()">🗑 Clear</button>
+        <button class="e2a e2a-save"  onclick="saveRecord()">💾 Save</button>
+        <button class="e2a e2a-print" onclick="printRecord()">🖨 Print</button>
+      </div>
+    </div>
+
+    <!-- ══ STEP 1: Document Info ══ -->
+    <div class="ec2-step" id="step_1">
+      <div class="ec2-step-inner">
+        <div class="ec2-step-header">
+          <div class="ec2-step-icon">📋</div>
+          <div>
+            <div class="ec2-step-title">Document Information</div>
+            <div class="ec2-step-desc">Enter company, product and rate details</div>
+          </div>
+        </div>
+        <div class="ec2-card">
+          <div class="ec2-card-hd"><span class="ec2-badge">A</span> Costing Reference</div>
+          <div class="ec2-grid-3x2">
+            <div class="e2f">
+              <label class="e2l2">Company <span class="req">*</span></label>
+              <input type="text"   class="e2i" id="f_company"     placeholder="Company name"/>
+            </div>
+            <div class="e2f">
+              <label class="e2l2">Costing Ref. <span class="req">*</span></label>
+              <input type="text"   class="e2i" id="f_refno"       placeholder="EC2/2026/0001"/>
+            </div>
+            <div class="e2f">
+              <label class="e2l2">Product</label>
+              <input type="text"   class="e2i" id="f_product"     placeholder="Product name"/>
+            </div>
+            <div class="e2f">
+              <label class="e2l2">Rate On Date <span class="req">*</span></label>
+              <input type="date"   class="e2i" id="f_ratedate"/>
+            </div>
+            <div class="e2f">
+              <label class="e2l2">Currency 1$ = INR</label>
+              <input type="number" class="e2i" id="f_usdrate"     placeholder="e.g. 84.50" step="0.01"/>
+            </div>
+            <div class="e2f">
+              <label class="e2l2">Port of Loading</label>
+              <input type="text"   class="e2i" id="f_pol"         placeholder="e.g. Mundra"/>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="ec2-step-footer">
+        <div></div>
+        <button class="e2nav e2nav-next" onclick="nextStep(1)">Next: Costing Sheet →</button>
+      </div>
+    </div>
+
+    <!-- ══ STEP 2: Costing Sheet ══ -->
+    <div class="ec2-step hidden" id="step_2">
+      <div class="ec2-step-inner ec2-step-inner-tbl">
+
+        <div class="ec2-info-strip">
+          <span id="s2_company"></span>
+          <span class="ec2-strip-sep">|</span>
+          <span id="s2_product"></span>
+          <span class="ec2-strip-sep">|</span>
+          <span id="s2_ref"></span>
+          <span class="ec2-strip-sep">|</span>
+          <span>1$ = ₹<strong id="s2_rate"></strong></span>
+        </div>
+
+        <div class="ec2-card ec2-card-full">
+          <div class="ec2-card-hd">
+            <span class="ec2-badge">B</span> Costing Sheet
+            <span class="ec2-card-note">All values in INR &nbsp;|&nbsp; Totals auto-calculate</span>
+          </div>
+          <div class="ec2-tbl-wrap">
+            <table class="ec2-tbl">
+              <thead>
+                <!-- Row 1: group labels -->
+                <tr class="ec2-thead-top">
+                  <th rowspan="2" class="ec2-th-par">PARTICULARS</th>
+                  <th class="ec2-th-grp">LCL SHIPMENT</th>
+                  <th class="ec2-th-grp">LCL SHIPMENT</th>
+                  <th class="ec2-th-grp">40' HQ CONTAINER</th>
+                </tr>
+                <!-- Row 2: sub labels -->
+                <tr class="ec2-thead-mid">
+                  <th class="ec2-th-sub">LCL COSTING<br/><span class="ec2-rs">RS</span></th>
+                  <th class="ec2-th-sub">LCL COSTING<br/><span class="ec2-rs">RS</span></th>
+                  <th class="ec2-th-sub">FCL COSTING<br/><span class="ec2-rs">RS</span></th>
+                </tr>
+              </thead>
+              <tbody id="costBody">
+                <!-- built by JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+      <div class="ec2-step-footer">
+        <button class="e2nav e2nav-back" onclick="prevStep(2)">← Back</button>
+        <button class="e2nav e2nav-next" onclick="nextStep(2)">Next: Summary →</button>
+      </div>
+    </div>
+
+    <!-- ══ STEP 3: Summary & Auth ══ -->
+    <div class="ec2-step hidden" id="step_3">
+      <div class="ec2-step-inner">
+
+        <div class="ec2-info-strip">
+          <span id="s3_company"></span>
+          <span class="ec2-strip-sep">|</span>
+          <span id="s3_product"></span>
+          <span class="ec2-strip-sep">|</span>
+          <span id="s3_ref"></span>
+        </div>
+
+        <!-- FOB / CIF Summary -->
+        <div class="ec2-card">
+          <div class="ec2-card-hd"><span class="ec2-badge">C</span> FOB &amp; CIF Summary (LCL Col 1)</div>
+          <div class="ec2-sum-grid">
+            <div class="ec2-sum-item ec2-sum-navy">
+              <div class="ec2-sum-lbl">FOB Value INR</div>
+              <div class="ec2-sum-val" id="sum_fob_inr">₹ 0</div>
+            </div>
+            <div class="ec2-sum-item ec2-sum-navy">
+              <div class="ec2-sum-lbl">FOB Expense / KG</div>
+              <div class="ec2-sum-val" id="sum_fob_kg">₹ 0</div>
+            </div>
+            <div class="ec2-sum-item ec2-sum-navy">
+              <div class="ec2-sum-lbl">FOB Value in $</div>
+              <div class="ec2-sum-val" id="sum_fob_usd">$ 0</div>
+            </div>
+            <div class="ec2-sum-item ec2-sum-gold">
+              <div class="ec2-sum-lbl">CIF Value INR</div>
+              <div class="ec2-sum-val" id="sum_cif_inr">₹ 0</div>
+            </div>
+            <div class="ec2-sum-item ec2-sum-gold">
+              <div class="ec2-sum-lbl">CIF Value in $</div>
+              <div class="ec2-sum-val" id="sum_cif_usd">$ 0</div>
+            </div>
+            <div class="ec2-sum-item ec2-sum-teal">
+              <div class="ec2-sum-lbl">Other Expenses</div>
+              <div class="ec2-sum-val" id="sum_other">₹ 0</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Auth -->
+        <div class="ec2-card">
+          <div class="ec2-card-hd"><span class="ec2-badge">D</span> Authorization</div>
+          <div class="ec2-auth-grid">
+            <div class="e2f">
+              <label class="e2l2">Prepared By</label>
+              <input type="text" class="e2i" id="f_preparedby" placeholder="Full name"/>
+            </div>
+            <div class="e2f">
+              <label class="e2l2">Authorised Signatory</label>
+              <input type="text" class="e2i" id="f_signatory"  placeholder="Signatory name"/>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <div class="ec2-step-footer">
+        <button class="e2nav e2nav-back" onclick="prevStep(3)">← Back</button>
+        <div style="display:flex;gap:0.5rem;">
+          <button class="e2nav e2nav-save"  onclick="saveRecord()">💾 Save Record</button>
+          <button class="e2nav e2nav-print" onclick="printRecord()">🖨 Print</button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /ec2-right -->
+</div><!-- /ec2-shell -->
+
+<div id="printArea" style="display:none;"></div>
+<script src="app.js"></script>
+<script src="ec2.js"></script>
+</body>
+</html>
