@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>IMPEXIO — Export Quotation</title>
+  <link rel="stylesheet" href="styles.css"/>
+  <link rel="stylesheet" href="eq.css"/>
+  <link rel="icon" href="impexio_logo.png" type="image/png"/>
+</head>
+<body class="dash-body eq-body">
+
+<!-- TOP BAR -->
+<div class="dash-topbar">
+  <div class="dtb-brand">
+    <div class="dtb-logo-box"><img src="impexio_logo.png" alt="IMPEXIO" class="dtb-logo"/></div>
+    <div class="dtb-name">IMPEXIO</div>
+  </div>
+  <div class="dtb-meta" id="dtbMeta"></div>
+  <div class="dtb-right">
+    <div class="dtb-user">
+      <div class="dtb-avatar" id="dtbAv">A</div>
+      <div>
+        <div class="dtb-uname" id="dtbUname">Admin</div>
+        <div class="dtb-role"  id="dtbRole">Administrator</div>
+      </div>
+    </div>
+    <button class="btn-logout" onclick="doLogout()">⏻ Logout</button>
+  </div>
+</div>
+
+<!-- PAGE SHELL -->
+<div class="eq-shell">
+
+  <!-- ═══ LEFT: Records ═══ -->
+  <div class="eq-left">
+    <div class="ql-header">
+      <div class="ql-title">📋 EQ Records</div>
+      <button class="ql-new-btn" onclick="newEntry()">＋ New</button>
+    </div>
+    <div class="ql-search-wrap">
+      <span>🔍</span>
+      <input type="text" id="searchInput" class="ql-search" placeholder="Search..." oninput="filterRecords()"/>
+    </div>
+    <div class="ql-list" id="recordsList">
+      <div class="ql-empty">
+        <div style="font-size:1.6rem;opacity:0.35;">📋</div>
+        <div class="ql-empty-txt">No records yet</div>
+        <div class="ql-empty-sub">Click + New to begin</div>
+      </div>
+    </div>
+    <a href="main.html" class="ql-back">← Back to Menu</a>
+  </div>
+
+  <!-- ═══ RIGHT: Step Wizard ═══ -->
+  <div class="eq-right">
+
+    <!-- Progress Bar -->
+    <div class="eq-progress-bar">
+      <div class="qpb-left">
+        <div class="qpb-title" id="formTitle">New Export Quotation</div>
+        <div class="qpb-sub"   id="formSub">Step 1 of 3</div>
+      </div>
+      <div class="qpb-steps">
+        <div class="qpb-step active" id="pstep_1" onclick="goToStep(1)">
+          <div class="qpb-step-num">1</div>
+          <div class="qpb-step-lbl">Header Info</div>
+        </div>
+        <div class="qpb-connector" id="conn_1"></div>
+        <div class="qpb-step" id="pstep_2" onclick="goToStep(2)">
+          <div class="qpb-step-num">2</div>
+          <div class="qpb-step-lbl">Product Lines</div>
+        </div>
+        <div class="qpb-connector" id="conn_2"></div>
+        <div class="qpb-step" id="pstep_3" onclick="goToStep(3)">
+          <div class="qpb-step-num">3</div>
+          <div class="qpb-step-lbl">Terms &amp; Remarks</div>
+        </div>
+      </div>
+      <div class="qpb-actions">
+        <button class="qa qa-clear" onclick="clearForm()">🗑 Clear</button>
+        <button class="qa qa-save"  onclick="saveRecord()">💾 Save</button>
+        <button class="qa qa-print" onclick="printRecord()">🖨 Print</button>
+      </div>
+    </div>
+
+    <!-- ══ STEP 1: Header Info ══ -->
+    <div class="eq-step" id="step_1">
+      <div class="eq-step-inner">
+
+        <div class="eq-step-header">
+          <div class="eq-step-icon">📋</div>
+          <div>
+            <div class="eq-step-title">Header Information</div>
+            <div class="eq-step-desc">Enter quotation number, date, product and buyer details</div>
+          </div>
+        </div>
+
+        <!-- Ref Info -->
+        <div class="eq-card">
+          <div class="eq-card-hd"><span class="eq-badge">A</span> Quotation Reference</div>
+          <div class="eq-grid-4col">
+            <div class="qf">
+              <label class="ql2">Quot. No. <span class="req">*</span></label>
+              <input type="text" class="qi" id="f_quotno" placeholder="EQ/2026/0001"/>
+            </div>
+            <div class="qf">
+              <label class="ql2">Date <span class="req">*</span></label>
+              <input type="date" class="qi" id="f_date"/>
+            </div>
+            <div class="qf">
+              <label class="ql2">Product</label>
+              <input type="text" class="qi" id="f_product" placeholder="Product name"/>
+            </div>
+            <div class="qf">
+              <label class="ql2">Buyer <span class="req">*</span></label>
+              <input type="text" class="qi" id="f_buyer" placeholder="Buyer / Company name"/>
+            </div>
+            <div class="qf" style="grid-column:1/-1;">
+              <label class="ql2">Country</label>
+              <input type="text" class="qi" id="f_country" placeholder="Buyer's country"/>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <div class="eq-step-footer">
+        <div></div>
+        <button class="qnav qnav-next" onclick="nextStep(1)">Next: Product Lines →</button>
+      </div>
+    </div>
+
+    <!-- ══ STEP 2: Product Lines ══ -->
+    <div class="eq-step hidden" id="step_2">
+      <div class="eq-step-inner eq-step-inner-tbl">
+
+        <div class="eq-info-strip">
+          <span id="s2_quotno"></span>
+          <span class="eq-strip-sep">|</span>
+          <span id="s2_buyer"></span>
+          <span class="eq-strip-sep">|</span>
+          <span id="s2_product"></span>
+          <span class="eq-strip-sep">|</span>
+          <span id="s2_country"></span>
+        </div>
+
+        <div class="eq-card eq-card-full">
+          <div class="eq-card-hd">
+            <span class="eq-badge">B</span> Product Description &amp; Line Items
+            <span class="eq-card-note">Rate CIF × Qty = Amount (auto-calculated)</span>
+            <button class="eq-add-row-btn" onclick="addRow()">＋ Add Row</button>
+          </div>
+          <div class="eq-prod-wrap">
+            <table class="eq-tbl">
+              <thead>
+                <tr>
+                  <th class="qth-desc">Product Description</th>
+                  <th class="qth-hs">HS Code</th>
+                  <th class="qth-qty">Qty</th>
+                  <th class="qth-rate">Rate CIF</th>
+                  <th class="qth-amt">Amount</th>
+                  <th class="qth-del"></th>
+                </tr>
+              </thead>
+              <tbody id="productBody"></tbody>
+              <tfoot>
+                <tr class="eq-total-row">
+                  <td colspan="2" class="eq-total-label">TOTAL</td>
+                  <td id="tot_qty" class="eq-tot-cell">0</td>
+                  <td></td>
+                  <td id="tot_amt" class="eq-tot-gold">0.00</td>
+                  <td></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+
+      </div>
+      <div class="eq-step-footer">
+        <button class="qnav qnav-back" onclick="prevStep(2)">← Back</button>
+        <button class="qnav qnav-next" onclick="nextStep(2)">Next: Terms & Remarks →</button>
+      </div>
+    </div>
+
+    <!-- ══ STEP 3: Terms & Remarks ══ -->
+    <div class="eq-step hidden" id="step_3">
+      <div class="eq-step-inner">
+
+        <div class="eq-info-strip">
+          <span id="s3_quotno"></span>
+          <span class="eq-strip-sep">|</span>
+          <span id="s3_buyer"></span>
+          <span class="eq-strip-sep">|</span>
+          <span>Total: <strong id="s3_total"></strong></span>
+        </div>
+
+        <!-- Terms & Conditions -->
+        <div class="eq-card">
+          <div class="eq-card-hd eq-card-hd-teal"><span class="eq-badge">C</span> Other Details With Terms &amp; Conditions</div>
+          <div class="eq-terms-grid">
+            <div class="qf">
+              <label class="ql2">Port of Loading</label>
+              <input type="text" class="qi" id="f_pol" placeholder="e.g. Mundra"/>
+            </div>
+            <div class="qf">
+              <label class="ql2">Port of Discharge</label>
+              <input type="text" class="qi" id="f_pod" placeholder="e.g. Hamburg"/>
+            </div>
+            <div class="qf">
+              <label class="ql2">Inco Terms</label>
+              <input type="text" class="qi" id="f_incoterms" placeholder="e.g. CIF / FOB"/>
+            </div>
+            <div class="qf">
+              <label class="ql2">Final Destination</label>
+              <input type="text" class="qi" id="f_final_dest" placeholder="Final destination"/>
+            </div>
+            <div class="qf">
+              <label class="ql2">Delivery Time</label>
+              <input type="text" class="qi" id="f_delivery_time" placeholder="e.g. 30 Days"/>
+            </div>
+            <div class="qf">
+              <label class="ql2">Shipment Type</label>
+              <input type="text" class="qi" id="f_shipment_type" placeholder="e.g. FCL / LCL"/>
+            </div>
+            <div class="qf">
+              <label class="ql2">Payment Terms</label>
+              <input type="text" class="qi" id="f_payment_terms" placeholder="e.g. 30% advance"/>
+            </div>
+            <div class="qf">
+              <label class="ql2">Quotation Validity</label>
+              <input type="text" class="qi" id="f_validity" placeholder="e.g. 15 Days"/>
+            </div>
+            <div class="qf">
+              <label class="ql2">Packaging / Labeling</label>
+              <input type="text" class="qi" id="f_packaging" placeholder="Packaging details"/>
+            </div>
+            <div class="qf">
+              <label class="ql2">Container Size</label>
+              <input type="text" class="qi" id="f_container_size" placeholder="e.g. 20' / 40'"/>
+            </div>
+            <div class="qf">
+              <label class="ql2">Packed Dimension</label>
+              <input type="text" class="qi" id="f_packed_dim" placeholder="L × W × H cm"/>
+            </div>
+            <div class="qf">
+              <label class="ql2">Total Inner Pack</label>
+              <input type="text" class="qi" id="f_inner_pack" placeholder="e.g. 12 pcs"/>
+            </div>
+            <div class="qf">
+              <label class="ql2">Packed Weight</label>
+              <input type="text" class="qi" id="f_packed_weight" placeholder="e.g. 500 gms"/>
+            </div>
+            <div class="qf">
+              <label class="ql2">Total Master Pack</label>
+              <input type="text" class="qi" id="f_master_pack" placeholder="e.g. 24 pcs"/>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sample & Special Instructions -->
+        <div class="eq-card">
+          <div class="eq-card-hd eq-card-hd-teal"><span class="eq-badge">D</span> Sample &amp; Special Instructions</div>
+          <div class="eq-sample-grid">
+            <div class="qf">
+              <label class="ql2">Sample Status</label>
+              <input type="text" class="qi" id="f_sample" placeholder="Sample not yet approved"/>
+            </div>
+            <div class="qf" style="grid-column:2/-1;">
+              <label class="ql2">Special Instructions</label>
+              <input type="text" class="qi" id="f_special_inst" placeholder="Special instructions..."/>
+            </div>
+            <div class="qf" style="grid-column:1/-1;">
+              <label class="ql2">Other Desc.</label>
+              <input type="text" class="qi" id="f_other_desc" value="( Testing Charges, Inspection Charges and Special Packaging Charges will be extra as applicable )"/>
+            </div>
+            <div class="qf" style="grid-column:1/-1;">
+              <label class="ql2">Remarks</label>
+              <textarea class="qi qi-ta" id="f_remarks" placeholder="Additional remarks..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- Summary -->
+        <div class="eq-card">
+          <div class="eq-card-hd"><span class="eq-badge">E</span> Summary &amp; Authorization</div>
+          <div class="eq-sum-grid">
+            <div class="eq-sum-item">
+              <div class="eq-sum-lbl">Total Qty</div>
+              <div class="eq-sum-val" id="sum_qty">0</div>
+            </div>
+            <div class="eq-sum-item eq-sum-gold">
+              <div class="eq-sum-lbl">Total Amount</div>
+              <div class="eq-sum-val" id="sum_amt">0.00</div>
+            </div>
+            <div class="eq-sum-item">
+              <div class="eq-sum-lbl">Buyer</div>
+              <div class="eq-sum-val eq-sum-sm" id="sum_buyer">—</div>
+            </div>
+            <div class="eq-sum-item">
+              <div class="eq-sum-lbl">Country</div>
+              <div class="eq-sum-val eq-sum-sm" id="sum_country">—</div>
+            </div>
+          </div>
+          <div class="eq-auth-grid">
+            <div class="qf">
+              <label class="ql2">Prepared By</label>
+              <input type="text" class="qi" id="f_preparedby" placeholder="Full name"/>
+            </div>
+            <div class="qf">
+              <label class="ql2">For IMPEXIO / Authorised Signatory</label>
+              <input type="text" class="qi" id="f_signatory" placeholder="Signatory name"/>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <div class="eq-step-footer">
+        <button class="qnav qnav-back" onclick="prevStep(3)">← Back</button>
+        <div style="display:flex;gap:0.5rem;">
+          <button class="qnav qnav-save"  onclick="saveRecord()">💾 Save Record</button>
+          <button class="qnav qnav-print" onclick="printRecord()">🖨 Print</button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /eq-right -->
+</div><!-- /eq-shell -->
+
+<div id="printArea" style="display:none;"></div>
+<script src="app.js"></script>
+<script src="eq.js"></script>
+</body>
+</html>
